@@ -3,7 +3,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
 const SelectCurrency = ({ currencies, onSelectCurrency }) => {
     return (
         <select onChange={(e) => onSelectCurrency(e.target.value)}>

@@ -7,21 +7,48 @@ class App extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
       currencies: data.currencies,
       currencyA: data.currencies[0],
-      currencyb: data.currencies[1],
+      currencyB: data.currencies[0],
       currencyValueA: data.currencies[0].sellRate,
-      currencyValueB: data.currencies[1].sellRate,
+      currencyValueB: data.currencies[0].sellRate
     }
+
+    this.onSelectCurrency = this.onSelectCurrency.bind(this);
+
   }
 
   onSelectCurrency(code) {
-    console.log('a message for selecting currency ' + code)
+    //console.log('selecting currency: '+code);
+    const { currencies, currencyValueA } = this.state;
+    const currency = currencies.filter(currency => currency.code === code);
+    this.setState({
+      currencyB: currency[0], // this is an array with one item
+      currencyValueB: currencyValueA * currency[0].sellRate
+    })
+  }
+
+  onChangeHandler(e, currency) {
+    const {currencyB } = this.state;
+    if (currency === 'A') {
+      const newValueA = e.target.value;
+      this.setState({
+        currencyValueA: newValueA,
+        currencyValueB: newValueA * currencyB.sellRate
+      })
+    } else if (currency === 'B') {
+      const newValueB = e.target.value;
+      this.setState({
+        currencyValueA: newValueB / currencyB.sellRate,
+        currencyValueB: newValueB
+      })
+    }
   }
 
   render() {
-    const { currencies } = this.state
+    const { currencies, currencyA, currencyB, currencyValueA, currencyValueB } = this.state;
     return (
       <div>
         <header>
@@ -46,26 +73,30 @@ class App extends React.Component {
 
           <div className="row">
             <div className="col-sm-6 currency-from-input">
-              <h3 className="currency-flag AUD">Australian Dollars</h3>
+              <h3 className={`currency-flag ${currencyA.code}`}>{currencyA.name}</h3>
               {
                 //Currency A input
               }
               <div className="input-group">
-                <span className="input-group-addon">$</span>
-                <input type="number" defaultValue={0} className="form-control" aria-describedby="basic-addon2" step="1" pattern="\d\.\d{2}" />
-                <span className="input-group-addon" id="basic-addon2">AUD</span>
+                <span className="input-group-addon">{currencyA.sign}</span>
+                <input type="number" value={currencyValueA} className="form-control" aria-describedby="basic-addon2" step="1" pattern="\d\.\d{2}" onChange={(e) => {
+                  this.onChangeHandler(e, 'A');
+                }} />
+                <span className="input-group-addon" id="basic-addon2">{currencyA.code}</span>
               </div>
 
             </div>
             <div className="col-sm-6 currency-to-input">
-              <h3 className="currency-flag USD">United States Dollars</h3>
+              <h3 className={`currency-flag ${currencyB.code}`}>{currencyB.name}</h3>
               {
                 //Currency B input
               }
               <div className="input-group">
-                <span className="input-group-addon">$</span>
-                <input type="number" defaultValue={0} className="form-control" aria-describedby="basic-addon3" step="1" pattern="\d\.\d{2}" />
-                <span className="input-group-addon" id="basic-addon3">USD</span>
+                <span className="input-group-addon">{currencyB.sign}</span>
+                <input type="number" value={currencyValueB} className="form-control" aria-describedby="basic-addon3" step="1" pattern="\d\.\d{2}" onChange={(e) => {
+                  this.onChangeHandler(e, 'B');
+                }} />
+                <span className="input-group-addon" id="basic-addon3">{currencyB.code}</span>
               </div>
 
             </div>
@@ -76,7 +107,7 @@ class App extends React.Component {
                 //Update to currently selected currency
               }
               <p>
-                Exchange Rate $ 1 AUD = $ 0.7041 USD
+                Exchange Rate {`${currencyA.sign} ${currencyA.sellRate} ${currencyA.code}`} = {`${currencyB.sign} ${currencyB.sellRate} ${currencyB.code}`}
               </p>
             </div>
           </div>
